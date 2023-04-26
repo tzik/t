@@ -1,0 +1,4 @@
+clang-format
+flake8
+pylint
+termcolor

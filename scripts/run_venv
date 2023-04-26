@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+
+base_dir="$(realpath $(dirname "$0")/..)"
+venv_dir="${base_dir}/venv"
+if [[ ! -d "${base_dir}/venv" ]]; then
+    python -m venv "${venv_dir}"
+fi
+source "${venv_dir}/bin/activate"
+
+req_file="${base_dir}/requirements.txt"
+stamp_file="${venv_dir}/stamp"
+if ! cmp "${req_file}" "${stamp_file}" >/dev/null 2>&1; then
+    pip install --upgrade pip
+    pip install -r "${base_dir}/requirements.txt"
+    cp "${req_file}" "${stamp_file}"
+fi
+
+exec "$@"

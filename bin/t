@@ -1,0 +1,4 @@
+#!/bin/bash
+base_dir="$(realpath $(dirname "$0")/..)"
+script_dir="${base_dir}/scripts"
+exec "${script_dir}/run_venv" python "${script_dir}/t.py" "$@"
