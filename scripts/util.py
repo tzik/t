@@ -48,8 +48,9 @@ def run(cmd, **kwargs):
     return subprocess.run(cmd, **kwargs)
 
 
-def git_config(git_dir, name):
-    rv = run(['git', '--git-dir=' + git_dir, 'config', name],
+def git(cmd, git_dir=None):
+    alt_git_dir = ['--git-dir=' + git_dir] if git_dir is not None else []
+    rv = run(['git'] + alt_git_dir + cmd,
              check=False, stdout=subprocess.PIPE)
     if rv.returncode != 0:
         return None

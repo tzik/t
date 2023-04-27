@@ -5,7 +5,7 @@ import re
 import shlex
 import sys
 
-from util import launchers, ancestors, run, git_config
+from util import launchers, ancestors, run, git
 
 
 ninja_env = {
@@ -17,16 +17,6 @@ def setup_subcommand(subparsers):
     parser_build = subparsers.add_parser('build')
     parser_build.set_defaults(handler=cmd_build)
     parser_build.add_argument('srcs', nargs='*')
-
-
-def attempt_git(args, wd, key_file):
-    cmd = git_config(key_file, 'build.command')
-    if cmd is None:
-        return False
-
-    srcs = [os.path.abspath(src) for src in args.srcs]
-    run(shlex.split(cmd) + srcs, cwd=wd)
-    return True
 
 
 def attempt_compdb(args, wd, key_file):
@@ -154,7 +144,6 @@ def attempt_cmake(args, wd, key_file):
 
 
 build_handlers = [
-    ['.git', attempt_git],
     ['build/compile_commands.json', attempt_compdb],
     ['build/build.ninja', attempt_ninja],
     ['build.ninja', attempt_ninja],
@@ -165,6 +154,12 @@ build_handlers = [
 
 
 def cmd_build(args):
+    top_dir = git(['rev-parse', '--show-cdup'])
+    cmd = git(['config', 'build.command'])
+    if top_dir is not None and cmd is not None:
+        run(shlex.split(cmd), cwd=os.path.abspath(top_dir))
+        sys.exit(0)
+
     for wd in ancestors(os.getcwd()):
         for key_file_rel, handler in build_handlers:
             key_file = os.path.join(wd, key_file_rel)
