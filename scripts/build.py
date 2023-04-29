@@ -44,10 +44,7 @@ def attempt_compdb(args, wd, key_file):
 
 
 def attempt_ninja(args, wd, key_file):
-    targets = [os.path.abspath(src) + '^' for src in args.srcs]
-    run(launchers + ['ninja', '-C',
-                     os.path.dirname(key_file)] + targets,
-        env=ninja_env)
+    run(launchers + ['ninja', '-C', os.path.dirname(key_file)], env=ninja_env)
     return True
 
 
