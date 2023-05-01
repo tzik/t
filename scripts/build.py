@@ -71,25 +71,32 @@ def attempt_cmake(args, wd, key_file):
     src_dir = os.path.dirname(key_file)
     build_dir = os.path.join(src_dir, 'build')
     out_dir = os.path.join(src_dir, 'out')
+    is_first_party = re.match('.*/third_party/.*', wd) is None
 
     cflags = [
         '-ffunction-sections',
         '-fdata-sections',
         '-ffile-compilation-dir=.',
         '-march=native',
-        '-Wall', '-Wextra', '-pedantic', '-Werror',
-        '-Wglobal-constructors',
-        '-Wexit-time-destructors',
+        '-Wno-unused-parameter',
     ]
+    if is_first_party:
+        cflags += [
+            '-Wall', '-Wextra', '-pedantic', '-Werror',
+            '-Wglobal-constructors',
+            '-Wexit-time-destructors',
+        ]
 
     cflags_debug = [
         '-g',
         '-fsanitize=address',
     ]
 
-    cxxflags = [
-        '-fno-rtti',
-    ]
+    cxxflags = []
+    if is_first_party:
+        cxxflags += [
+            '-fno-rtti',
+        ]
 
     ldflags = [
         '-Wl,--gc-sections',
@@ -133,9 +140,9 @@ def attempt_cmake(args, wd, key_file):
         'cmake', '--build', build_dir
     ])
 
-    # run(launchers + [
-    #     'cmake', '--install', build_dir
-    # ])
+    run(launchers + [
+        'cmake', '--install', build_dir
+    ])
 
     return True
 
